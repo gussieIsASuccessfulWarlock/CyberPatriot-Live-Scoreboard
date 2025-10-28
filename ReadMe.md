@@ -1,4 +1,7 @@
 # CyberPatriot Live Scoreboard
+
+![Scoreboard Mockup](assets/mockup.jpeg)
+
 A real-time scoreboard application for tracking CyberPatriot competition scores with a retro CRT-inspired interface.
 
 ## Overview
