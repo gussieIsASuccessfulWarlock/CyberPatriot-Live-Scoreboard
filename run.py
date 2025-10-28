@@ -17,10 +17,14 @@ cached_teams = None
 last_request = None
 
 with open('teams.txt', 'r') as file:
-    for line in file:
-        team = line.strip()
-        if team:
-            teams.append(team)
+    if file.read().strip() == "":
+        print("No teams specified in teams.txt, defaulting to all teams.")
+        teams = None
+    else:
+        for line in file:
+            team = line.strip()
+            if team:
+                teams.append(team)
 
 def get_team_scores():
     global last_request, cached_teams
@@ -36,11 +40,11 @@ def get_team_scores():
         scores = response.json()['data']
         only_relevant_scores = []
         if teams is None or len(teams) == 0:
+            only_relevant_scores = scores
+        else:
             for score in scores:
                 if score['team_number'] in teams:
                     only_relevant_scores.append(score)
-        else:
-            only_relevant_scores = scores
         cached_teams = only_relevant_scores
         return only_relevant_scores
     return {}
@@ -59,7 +63,10 @@ def send_asset(path):
 
 @socketio.on('get_teams')
 def handle_get_scores():
-    emit('teams', teams)
+    if teams is None or len(teams) == 0:
+        emit('teams', [])
+    else:
+        emit('teams', teams)
 
 @socketio.on('get_scores')
 def handle_get_scores():
