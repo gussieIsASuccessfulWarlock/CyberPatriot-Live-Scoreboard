@@ -24,8 +24,6 @@ with open('teams.txt', 'r') as file:
 
 def get_team_scores():
     global last_request, cached_teams
-    if teams is None or len(teams) == 0:
-        return []
     if last_request and cached_teams:
         if (time.time() - last_request) < 60 and len(cached_teams) != 0:
             print("Using cached scores...")
@@ -37,9 +35,12 @@ def get_team_scores():
     if response.status_code == 200:
         scores = response.json()['data']
         only_relevant_scores = []
-        for score in scores:
-            if score['team_number'] in teams:
-                only_relevant_scores.append(score)
+        if teams is None or len(teams) == 0:
+            for score in scores:
+                if score['team_number'] in teams:
+                    only_relevant_scores.append(score)
+        else:
+            only_relevant_scores = scores
         cached_teams = only_relevant_scores
         return only_relevant_scores
     return {}
