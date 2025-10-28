@@ -17,17 +17,16 @@ cached_teams = None
 last_request = None
 
 with open('teams.txt', 'r') as file:
-    if file.read().strip() == "":
-        print("No teams specified in teams.txt, defaulting to all teams.")
-        teams = None
-    else:
-        for line in file:
-            team = line.strip()
-            if team:
-                teams.append(team)
+    for line in file.readlines():
+        team = line.strip()
+        if team:
+            teams.append(team)
+
+if teams == []:
+    teams = None
 
 def get_team_scores():
-    global last_request, cached_teams
+    global last_request, cached_teams, teams
     if last_request and cached_teams:
         if (time.time() - last_request) < 60 and len(cached_teams) != 0:
             print("Using cached scores...")
@@ -39,12 +38,12 @@ def get_team_scores():
     if response.status_code == 200:
         scores = response.json()['data']
         only_relevant_scores = []
-        if teams is None or len(teams) == 0:
-            only_relevant_scores = scores
-        else:
-            for score in scores:
-                if score['team_number'] in teams:
-                    only_relevant_scores.append(score)
+        for score in scores:
+            if teams is None:
+                only_relevant_scores.append(score)
+                continue
+            if score['team_number'] in teams:
+                only_relevant_scores.append(score)
         cached_teams = only_relevant_scores
         return only_relevant_scores
     return {}
